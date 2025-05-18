@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple ChatBot </title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 400px;
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .chat-header {
+            background-color: #0078d7;
+            color: white;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin: 10px 0;
+            display: flex;
+        }
+
+        .user {
+            justify-content: flex-end;
+        }
+
+        .bot {
+            justify-content: flex-start;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease;
+        }
+
+        .user .bubble {
+            background-color: #0078d7;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot .bubble {
+            background-color: #e4e6eb;
+            color: #000;
+            border-bottom-left-radius: 4px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-area {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            border: none;
+            padding: 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        button {
+            border: none;
+            padding: 16px 20px;
+            background-color: #0078d7;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">🤖 ChatBot Assistant</div>
+    <div class="chat-box" id="chatlog">
+        <!-- Intro message -->
+        <div class="message bot"><div class="bubble">Hello! 👋 How can I assist you today?</div></div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="user_input" placeholder="Type a message..." onkeypress="handleKey(event)">
+        <button onclick="send()">Send</button>
+    </div>
+</div>
+
+<script>
+    function send() {
+        const userInput = document.getElementById("user_input");
+        const userText = userInput.value.trim();
+        if (userText === "") return;
+
+        appendMessage(userText, "user");
+
+        fetch(`/get?msg=${encodeURIComponent(userText)}`)
+            .then(response => response.text())
+            .then(botReply => {
+                appendMessage(botReply, "bot");
+            });
+
+        userInput.value = "";
+    }
+
+    function appendMessage(message, type) {
+        const chatlog = document.getElementById("chatlog");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `<div class="bubble">${message}</div>`;
+        chatlog.appendChild(messageDiv);
+        chatlog.scrollTop = chatlog.scrollHeight;
+    }
+
+    function handleKey(event) {
+        if (event.key === "Enter") {
+            send();
+        }
+    }
+</script>
+
+</body>
+</html>
